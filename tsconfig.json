@@ -1,0 +1,20 @@
+{
+  "compilerOptions": {
+    "allowJs": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "target": "es6",
+    "module": "commonjs",
+    "declaration": true,
+    "outDir": "./.tmp/build/",
+    "sourceMap": true,
+    "plugin": [
+      {
+        "transform": "powerbi-visuals-tools/lib/transforms/transformCall"
+      }
+    ]
+  },
+  "files": [
+    "src/visual.ts"
+  ]
+}
