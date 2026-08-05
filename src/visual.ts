@@ -60,7 +60,11 @@ export class Visual implements IVisual {
         const queryName: string = targetColumn.queryName;
         const dotIndex: number = queryName.indexOf(".");
 
-        const target: powerbi.IFilterTarget = {
+        if (dotIndex === -1) {
+            return;
+        }
+
+        const target = {
             table: queryName.substring(0, dotIndex),
             column: queryName.substring(dotIndex + 1)
         };
@@ -70,8 +74,8 @@ export class Visual implements IVisual {
             return;
         }
 
-        // Native Power BI Advanced Filter object with strict "Is" equality operator
-        const filter: powerbi.IAdvancedFilter = {
+        // Direct Advanced Filter JSON payload using exact equality 'Is' operator
+        const jsonFilter = {
             $schema: "http://powerbi.com/product/schema#advanced",
             target: target,
             logicalOperator: "And",
@@ -80,11 +84,15 @@ export class Visual implements IVisual {
                     operator: "Is",
                     value: searchValue
                 }
-            ],
-            filterType: powerbi.FilterType.Advanced
+            ]
         };
 
-        this.host.applyJsonFilter(filter, "general", "filter", FilterAction.merge);
+        this.host.applyJsonFilter(
+            jsonFilter as unknown as powerbi.IFilter, 
+            "general", 
+            "filter", 
+            FilterAction.merge
+        );
     }
 
     private clearFilter(): void {
