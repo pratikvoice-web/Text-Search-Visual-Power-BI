@@ -1,0 +1,24 @@
+{
+  "visual": {
+    "name": "exactSearchVisual",
+    "displayName": "Exact Match Search",
+    "guid": "exactSearchVisualA1B2C3D4E5",
+    "visualClassName": "Visual",
+    "version": "1.0.0.0",
+    "description": "Enforces exact string equality matching for filter context.",
+    "supportUrl": "",
+    "gitHubUrl": ""
+  },
+  "apiVersion": "5.1.0",
+  "author": {
+    "name": "Data Analytics Team",
+    "email": "analytics@company.com"
+  },
+  "assets": {
+    "icon": "assets/icon.png"
+  },
+  "externalJS": [],
+  "style": null,
+  "capabilities": "capabilities.json",
+  "dependencies": null
+}
