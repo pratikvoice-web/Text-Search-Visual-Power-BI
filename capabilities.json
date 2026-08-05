@@ -1,0 +1,33 @@
+{
+  "dataRoles": [
+    {
+      "displayName": "Target Search Column",
+      "name": "targetColumn",
+      "kind": "Grouping"
+    }
+  ],
+  "objects": {
+    "general": {
+      "properties": {
+        "filter": {
+          "type": {
+            "filter": {
+              "filterTypes": ["Advanced"]
+            }
+          }
+        }
+      }
+    }
+  },
+  "dataViewMappings": [
+    {
+      "categorical": {
+        "categories": {
+          "for": {
+            "in": "targetColumn"
+          }
+        }
+      }
+    }
+  ]
+}
