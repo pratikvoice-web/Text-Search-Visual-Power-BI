@@ -21,9 +21,7 @@ jobs:
       - name: Ensure Assets Directory & Dummy Icon
         run: |
           mkdir -p assets
-          if [ ! -f assets/icon.png ]; then
-            echo "iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAARElEQVR42mNkYGA4D8RMQD4A8RQApeMBzAAAAABJRU5ErkJggg==" | base64 -d > assets/icon.png
-          fi
+          node -e "const fs = require('fs'); if (!fs.existsSync('assets/icon.png')) { fs.writeFileSync('assets/icon.png', Buffer.from('iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAARElEQVR42mNkYGA4D8RMQD4A8RQApeMBzAAAAABJRU5ErkJggg==', 'base64')); }"
 
       - name: Install Tools and Dependencies
         run: |
