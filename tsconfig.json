@@ -8,10 +8,7 @@
     "declaration": true,
     "outDir": "./.tmp/build/",
     "sourceMap": true,
-    "skipLibCheck": true,
-    "types": [
-      "powerbi-visuals-api"
-    ]
+    "skipLibCheck": true
   },
   "files": [
     "src/visual.ts"
