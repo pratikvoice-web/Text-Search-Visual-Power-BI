@@ -2,38 +2,37 @@ name: Build Power BI Custom Visual
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, master ]
   workflow_dispatch:
 
 jobs:
-  build:
+  build-pbiviz:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
+    - name: Checkout Repository
+      uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 18
+    - name: Setup Aligned Node.js 22 Runtime
+      uses: actions/setup-node@v4
+      with:
+        node-version: '22' 
 
-      - name: Ensure Assets Directory & Dummy Icon
-        run: |
-          mkdir -p assets
-          node -e "const fs = require('fs'); if (!fs.existsSync('assets/icon.png')) { fs.writeFileSync('assets/icon.png', Buffer.from('iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAARElEQVR42mNkYGA4D8RMQD4A8RQApeMBzAAAAABJRU5ErkJggg==', 'base64')); }"
+    - name: Ensure Assets Directory & Dummy Icon
+      run: |
+        mkdir -p assets
+        node -e "const fs = require('fs'); if (!fs.existsSync('assets/icon.png')) { fs.writeFileSync('assets/icon.png', Buffer.from('iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAARElEQVR42mNkYGA4D8RMQD4A8RQApeMBzAAAAABJRU5ErkJggg==', 'base64')); }"
 
-      - name: Install Tools and Dependencies
-        run: |
-          npm install -g powerbi-visuals-tools@latest typescript
-          npm install
+    - name: Install Dependencies
+      run: npm install
 
-      - name: Package Visual
-        run: |
-          pbiviz package --no-lint
+    - name: Compile and Package Visual Payload
+      run: npx pbiviz package
 
-      - name: Upload .pbiviz Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: ExactSearchVisual-pbiviz
-          path: dist/*.pbiviz
+    - name: Upload Compiled Visual Binary Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: ExactSearchVisual-pbiviz
+        path: dist/*.pbiviz
+        if-no-files-found: error 
+        retention-days: 14
