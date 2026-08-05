@@ -1,4 +1,4 @@
-name: Build Power BI Custom Visual
+name: Compile Power BI Visual
 
 on:
   push:
@@ -16,7 +16,7 @@ jobs:
     - name: Setup Aligned Node.js 22 Runtime
       uses: actions/setup-node@v4
       with:
-        node-version: '22' 
+        node-version: '22'
 
     - name: Ensure Assets Directory & Dummy Icon
       run: |
@@ -34,5 +34,5 @@ jobs:
       with:
         name: ExactSearchVisual-pbiviz
         path: dist/*.pbiviz
-        if-no-files-found: error 
+        if-no-files-found: error
         retention-days: 14
