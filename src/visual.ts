@@ -1,5 +1,3 @@
-"use strict";
-
 import powerbi from "powerbi-visuals-api";
 import VisualConstructorOptions = powerbi.extensibility.visual.VisualConstructorOptions;
 import VisualUpdateOptions = powerbi.extensibility.visual.VisualUpdateOptions;
@@ -32,8 +30,12 @@ export class Visual implements IVisual {
         this.searchButton = this.targetContainer.querySelector("#exactSearchBtn") as HTMLButtonElement;
         this.clearButton = this.targetContainer.querySelector("#exactClearBtn") as HTMLButtonElement;
 
-        this.searchButton.addEventListener("click", () => this.applyExactFilter());
-        this.clearButton.addEventListener("click", () => this.clearFilter());
+        this.searchButton.addEventListener("click", () => {
+            this.applyExactFilter();
+        });
+        this.clearButton.addEventListener("click", () => {
+            this.clearFilter();
+        });
         this.inputElement.addEventListener("keydown", (e: KeyboardEvent) => {
             if (e.key === "Enter") {
                 this.applyExactFilter();
@@ -41,13 +43,13 @@ export class Visual implements IVisual {
         });
     }
 
-    public update(options: VisualUpdateOptions) {
+    public update(options: VisualUpdateOptions): void {
         if (options.dataViews && options.dataViews[0]) {
             this.dataView = options.dataViews[0];
         }
     }
 
-    private applyExactFilter() {
+    private applyExactFilter(): void {
         const searchValue = this.inputElement.value.trim();
 
         if (!this.dataView || !this.dataView.metadata || !this.dataView.metadata.columns[0]) {
@@ -68,7 +70,6 @@ export class Visual implements IVisual {
             return;
         }
 
-        // AdvancedFilter with operator "Is" enforces strict string equality matching
         const filter = new AdvancedFilter(
             target,
             "And",
@@ -81,7 +82,7 @@ export class Visual implements IVisual {
         this.host.applyJsonFilter(filter, "general", "filter", FilterAction.merge);
     }
 
-    private clearFilter() {
+    private clearFilter(): void {
         this.inputElement.value = "";
         this.host.applyJsonFilter(null, "general", "filter", FilterAction.remove);
     }
