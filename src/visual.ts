@@ -3,7 +3,7 @@ import VisualConstructorOptions = powerbi.extensibility.visual.VisualConstructor
 import VisualUpdateOptions = powerbi.extensibility.visual.VisualUpdateOptions;
 import IVisual = powerbi.extensibility.visual.IVisual;
 import IVisualHost = powerbi.extensibility.visual.IVisualHost;
-import { AdvancedFilter, FilterAction } from "powerbi-models";
+import FilterAction = powerbi.FilterAction;
 
 export class Visual implements IVisual {
     private targetContainer: HTMLElement;
@@ -50,17 +50,17 @@ export class Visual implements IVisual {
     }
 
     private applyExactFilter(): void {
-        const searchValue = this.inputElement.value.trim();
+        const searchValue: string = this.inputElement.value.trim();
 
         if (!this.dataView || !this.dataView.metadata || !this.dataView.metadata.columns[0]) {
             return;
         }
 
         const targetColumn = this.dataView.metadata.columns[0];
-        const queryName = targetColumn.queryName;
-        const dotIndex = queryName.indexOf(".");
+        const queryName: string = targetColumn.queryName;
+        const dotIndex: number = queryName.indexOf(".");
 
-        const target = {
+        const target: powerbi.IFilterTarget = {
             table: queryName.substring(0, dotIndex),
             column: queryName.substring(dotIndex + 1)
         };
@@ -70,14 +70,19 @@ export class Visual implements IVisual {
             return;
         }
 
-        const filter = new AdvancedFilter(
-            target,
-            "And",
-            {
-                operator: "Is",
-                value: searchValue
-            }
-        );
+        // Native Power BI Advanced Filter object with strict "Is" equality operator
+        const filter: powerbi.IAdvancedFilter = {
+            $schema: "http://powerbi.com/product/schema#advanced",
+            target: target,
+            logicalOperator: "And",
+            conditions: [
+                {
+                    operator: "Is",
+                    value: searchValue
+                }
+            ],
+            filterType: powerbi.FilterType.Advanced
+        };
 
         this.host.applyJsonFilter(filter, "general", "filter", FilterAction.merge);
     }
