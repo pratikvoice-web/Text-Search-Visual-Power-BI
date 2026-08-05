@@ -74,7 +74,6 @@ export class Visual implements IVisual {
             return;
         }
 
-        // Direct Advanced Filter JSON payload using exact equality 'Is' operator
         const jsonFilter = {
             $schema: "http://powerbi.com/product/schema#advanced",
             target: target,
