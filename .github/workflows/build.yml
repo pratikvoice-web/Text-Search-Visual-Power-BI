@@ -1,0 +1,42 @@
+name: Build Power BI Custom Visual
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/node-v3@v3
+        with:
+          node-version: 18
+
+      - name: Ensure Assets Directory & Dummy Icon
+        run: |
+          mkdir -p assets
+          if [ ! -f assets/icon.png ]; then
+            # Create a 20x20 transparent PNG if no icon exists
+            echo "iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAARElEQVR42mNkYGA4D8RMQD4A8RQApeMBzAAAAABJRU5ErkJggg==" | base64 -d > assets/icon.png
+          fi
+
+      - name: Install Tools and Dependencies
+        run: |
+          npm install -g powerbi-visuals-tools@latest typescript
+          npm install
+
+      - name: Package Visual
+        run: |
+          pbiviz package
+
+      - name: Upload .pbiviz Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: ExactSearchVisual-pbiviz
+          path: dist/*.pbiviz
