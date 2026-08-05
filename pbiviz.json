@@ -6,8 +6,8 @@
     "visualClassName": "Visual",
     "version": "1.0.0.0",
     "description": "Enforces exact string equality matching for filter context.",
-    "supportUrl": "",
-    "gitHubUrl": ""
+    "supportUrl": "https://github.com/pratikvoice-web/Text-Search-Visual-Power-BI",
+    "gitHubUrl": "https://github.com/pratikvoice-web/Text-Search-Visual-Power-BI"
   },
   "apiVersion": "5.11.0",
   "author": {
