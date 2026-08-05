@@ -17,12 +17,24 @@ export class Visual implements IVisual {
         this.host = options.host;
         this.targetContainer = options.element;
 
+        this.targetContainer.style.width = "100%";
+        this.targetContainer.style.height = "100%";
+        this.targetContainer.style.overflow = "hidden";
+        this.targetContainer.style.boxSizing = "border-box";
+
+        const searchIconSvg = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>`;
+        const clearIconSvg = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>`;
+
         this.targetContainer.innerHTML = `
-            <div style="display: flex; gap: 4px; align-items: center; padding: 2px; width: 100%; box-sizing: border-box;">
-                <input type="text" id="exactSearchInput" placeholder="Exact Customer ID..." 
-                       style="flex-grow: 1; padding: 4px 6px; border: 1px solid #666; border-radius: 2px; font-size: 12px; outline: none;" />
-                <button id="exactSearchBtn" style="padding: 4px 10px; background-color: #0078d4; color: white; border: none; border-radius: 2px; cursor: pointer; font-size: 12px;">Search</button>
-                <button id="exactClearBtn" style="padding: 4px 8px; background-color: #f3f2f1; color: #323130; border: 1px solid #ccc; border-radius: 2px; cursor: pointer; font-size: 12px;">Clear</button>
+            <div id="searchVisualContainer" style="display: flex; gap: 4px; align-items: center; padding: 2px 4px; width: 100%; height: 100%; box-sizing: border-box; overflow: hidden;">
+                <input type="text" id="exactSearchInput" placeholder="Enter text to search..." 
+                       style="flex: 1 1 auto; min-width: 0; width: 100%; padding: 4px 6px; border: 1px solid #666; border-radius: 3px; font-size: 12px; outline: none; box-sizing: border-box;" />
+                <button id="exactSearchBtn" title="Search" style="flex: 0 0 auto; display: inline-flex; align-items: center; justify-content: center; padding: 5px; background-color: #0078d4; color: white; border: none; border-radius: 3px; cursor: pointer;">
+                    ${searchIconSvg}
+                </button>
+                <button id="exactClearBtn" title="Clear" style="flex: 0 0 auto; display: inline-flex; align-items: center; justify-content: center; padding: 5px; background-color: #f3f2f1; color: #323130; border: 1px solid #ccc; border-radius: 3px; cursor: pointer;">
+                    ${clearIconSvg}
+                </button>
             </div>
         `;
 
@@ -46,6 +58,30 @@ export class Visual implements IVisual {
     public update(options: VisualUpdateOptions): void {
         if (options.dataViews && options.dataViews[0]) {
             this.dataView = options.dataViews[0];
+        }
+
+        // Dynamic scaling based on visual container height & width
+        if (options.viewport) {
+            const height = options.viewport.height;
+            const width = options.viewport.width;
+
+            let fontSize = Math.max(9, Math.min(14, Math.floor(height * 0.35)));
+            if (width < 140) {
+                fontSize = Math.max(8, fontSize - 2);
+            }
+
+            const btnPadding = Math.max(2, Math.min(6, Math.floor(height * 0.12)));
+            const iconSize = Math.max(10, Math.min(16, Math.floor(height * 0.38)));
+
+            this.inputElement.style.fontSize = `${fontSize}px`;
+            this.searchButton.style.padding = `${btnPadding}px`;
+            this.clearButton.style.padding = `${btnPadding}px`;
+
+            const svgs = this.targetContainer.querySelectorAll("svg");
+            svgs.forEach((svg) => {
+                svg.setAttribute("width", `${iconSize}`);
+                svg.setAttribute("height", `${iconSize}`);
+            });
         }
     }
 
