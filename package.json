@@ -6,10 +6,10 @@
     "build": "pbiviz package"
   },
   "dependencies": {
-    "powerbi-visuals-api": "^5.3.0"
+    "powerbi-visuals-api": "5.11.0"
   },
   "devDependencies": {
-    "powerbi-visuals-tools": "^5.3.2",
+    "powerbi-visuals-tools": "^5.6.0",
     "typescript": "~5.0.4"
   }
 }
