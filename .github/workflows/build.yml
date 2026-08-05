@@ -30,7 +30,7 @@ jobs:
 
       - name: Package Visual
         run: |
-          pbiviz package --ignore-errors
+          pbiviz package --no-lint
 
       - name: Upload .pbiviz Artifact
         uses: actions/upload-artifact@v4
