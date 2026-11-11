@@ -1,17 +1,17 @@
 {
   "visual": {
     "name": "exactSearchVisual",
-    "displayName": "Search Filter v1.0.0",
+    "displayName": "Search Filter v1.1.0",
     "guid": "exactSearchVisualA1B2C3D4E5",
     "visualClassName": "Visual",
-    "version": "1.0.0.0",
-    "description": "Enforces exact string equality matching for filter context.",
+    "version": "1.1.0.0",
+    "description": "Custom search filter supporting exact match, substring match, and slicer syncing across report pages.",
     "supportUrl": "https://github.com/pratikvoice-web/Text-Search-Visual-Power-BI",
     "gitHubUrl": "https://github.com/pratikvoice-web/Text-Search-Visual-Power-BI"
   },
   "apiVersion": "5.11.0",
   "author": {
-    "name": "pratikvoice-web",
+    "name": "Data Analytics Team",
     "email": "analytics@company.com"
   },
   "assets": {
