@@ -17,6 +17,36 @@
           }
         }
       }
+    },
+    "searchSettings": {
+      "displayName": "Search Settings",
+      "properties": {
+        "fontSize": {
+          "displayName": "Font Size",
+          "description": "Adjust search text size in pt (0 = automatic responsive scaling)",
+          "type": {
+            "formatting": {
+              "fontSize": true
+            }
+          }
+        },
+        "matchType": {
+          "displayName": "Matching Mode",
+          "description": "Select strict equality or substring match",
+          "type": {
+            "enumeration": [
+              {
+                "displayName": "Exact Match (Is)",
+                "value": "Is"
+              },
+              {
+                "displayName": "Fuzzy / Substring (Contains)",
+                "value": "Contains"
+              }
+            ]
+          }
+        }
+      }
     }
   },
   "dataViewMappings": [
@@ -30,5 +60,7 @@
       }
     }
   ],
-  "privileges": []
+  "privileges": [],
+  "supportsSynchronizingFilterState": true,
+  "suppressDefaultTitle": true
 }
