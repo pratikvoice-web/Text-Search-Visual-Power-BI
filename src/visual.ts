@@ -4,6 +4,9 @@ import VisualUpdateOptions = powerbi.extensibility.visual.VisualUpdateOptions;
 import IVisual = powerbi.extensibility.visual.IVisual;
 import IVisualHost = powerbi.extensibility.visual.IVisualHost;
 import FilterAction = powerbi.FilterAction;
+import EnumerateVisualObjectInstancesOptions = powerbi.EnumerateVisualObjectInstancesOptions;
+import VisualObjectInstance = powerbi.VisualObjectInstance;
+import VisualObjectInstanceEnumerationObject = powerbi.VisualObjectInstanceEnumerationObject;
 
 export class Visual implements IVisual {
     private targetContainer: HTMLElement;
@@ -12,6 +15,10 @@ export class Visual implements IVisual {
     private clearButton: HTMLButtonElement;
     private host: IVisualHost;
     private dataView: powerbi.DataView;
+
+    // Formatting Settings Defaults
+    private customFontSize: number = 0; // 0 indicates automatic responsive scaling
+    private matchType: string = "Is";   // "Is" (Exact) or "Contains" (Fuzzy/Substring)
 
     constructor(options: VisualConstructorOptions) {
         this.host = options.host;
@@ -43,14 +50,14 @@ export class Visual implements IVisual {
         this.clearButton = this.targetContainer.querySelector("#exactClearBtn") as HTMLButtonElement;
 
         this.searchButton.addEventListener("click", () => {
-            this.applyExactFilter();
+            this.applyFilter();
         });
         this.clearButton.addEventListener("click", () => {
             this.clearFilter();
         });
         this.inputElement.addEventListener("keydown", (e: KeyboardEvent) => {
             if (e.key === "Enter") {
-                this.applyExactFilter();
+                this.applyFilter();
             }
         });
     }
@@ -58,22 +65,56 @@ export class Visual implements IVisual {
     public update(options: VisualUpdateOptions): void {
         if (options.dataViews && options.dataViews[0]) {
             this.dataView = options.dataViews[0];
+
+            // Parse custom formatting properties
+            const objects = this.dataView.metadata?.objects;
+            if (objects && objects["searchSettings"]) {
+                const searchObj = objects["searchSettings"];
+                if (searchObj["fontSize"] !== undefined) {
+                    this.customFontSize = searchObj["fontSize"] as number;
+                }
+                if (searchObj["matchType"] !== undefined) {
+                    this.matchType = searchObj["matchType"] as string;
+                }
+            }
         }
 
-        // Dynamic scaling based on visual container height & width
+        // Synchronize incoming filter state from synced slicers or bookmarks
+        if (options.jsonFilters && options.jsonFilters.length > 0) {
+            const rawFilter = options.jsonFilters[0] as any;
+            if (rawFilter && rawFilter.conditions && rawFilter.conditions.length > 0) {
+                const conditionVal = rawFilter.conditions[0].value;
+                if (conditionVal !== undefined && conditionVal !== null) {
+                    this.inputElement.value = String(conditionVal);
+                }
+            }
+        } else if (options.jsonFilters && options.jsonFilters.length === 0) {
+            // Filter was cleared on another synced page
+            if (this.inputElement.value !== "") {
+                this.inputElement.value = "";
+            }
+        }
+
+        // Apply sizing logic (Custom Font Size vs Dynamic Viewport Scaling)
         if (options.viewport) {
             const height = options.viewport.height;
             const width = options.viewport.width;
 
-            let fontSize = Math.max(9, Math.min(14, Math.floor(height * 0.35)));
-            if (width < 140) {
-                fontSize = Math.max(8, fontSize - 2);
+            let computedFontSize: number;
+            if (this.customFontSize && this.customFontSize > 0) {
+                computedFontSize = this.customFontSize;
+                this.inputElement.style.fontSize = `${computedFontSize}pt`;
+            } else {
+                computedFontSize = Math.max(9, Math.min(14, Math.floor(height * 0.35)));
+                if (width < 140) {
+                    computedFontSize = Math.max(8, computedFontSize - 2);
+                }
+                this.inputElement.style.fontSize = `${computedFontSize}px`;
             }
 
             const btnPadding = Math.max(2, Math.min(6, Math.floor(height * 0.12)));
             const iconSize = Math.max(10, Math.min(16, Math.floor(height * 0.38)));
 
-            this.inputElement.style.fontSize = `${fontSize}px`;
             this.searchButton.style.padding = `${btnPadding}px`;
             this.clearButton.style.padding = `${btnPadding}px`;
 
@@ -85,7 +126,7 @@ export class Visual implements IVisual {
         }
     }
 
-    private applyExactFilter(): void {
+    private applyFilter(): void {
         const searchValue: string = this.inputElement.value.trim();
 
         if (!this.dataView || !this.dataView.metadata || !this.dataView.metadata.columns[0]) {
@@ -110,22 +151,25 @@ export class Visual implements IVisual {
             return;
         }
 
+        // Dynamically select filter operator based on format pane setting: "Is" or "Contains"
+        const selectedOperator = (this.matchType === "Contains") ? "Contains" : "Is";
+
         const jsonFilter = {
             $schema: "http://powerbi.com/product/schema#advanced",
             target: target,
             logicalOperator: "And",
             conditions: [
                 {
-                    operator: "Is",
+                    operator: selectedOperator,
                     value: searchValue
                 }
             ]
         };
 
         this.host.applyJsonFilter(
-            jsonFilter as unknown as powerbi.IFilter, 
-            "general", 
-            "filter", 
+            jsonFilter as unknown as powerbi.IFilter,
+            "general",
+            "filter",
             FilterAction.merge
         );
     }
@@ -133,5 +177,23 @@ export class Visual implements IVisual {
     private clearFilter(): void {
         this.inputElement.value = "";
         this.host.applyJsonFilter(null, "general", "filter", FilterAction.remove);
+    }
+
+    // Expose searchSettings to the Power BI Format Visual Pane
+    public enumerateObjectInstances(options: EnumerateVisualObjectInstancesOptions): VisualObjectInstance[] | VisualObjectInstanceEnumerationObject {
+        const instances: VisualObjectInstance[] = [];
+
+        if (options.objectName === "searchSettings") {
+            instances.push({
+                objectName: options.objectName,
+                properties: {
+                    fontSize: this.customFontSize,
+                    matchType: this.matchType
+                },
+                selector: null
+            });
+        }
+
+        return instances;
     }
 }
